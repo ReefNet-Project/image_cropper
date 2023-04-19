@@ -97,4 +97,3 @@ results = pool.map(process_chunk, chunks)
 # close and join the pool to release resources and prevent memory leaks
 pool.close()
 pool.join()
-```

@@ -5,7 +5,10 @@ import numpy as np
 from find_image import find_image_path
 
 # define a function that takes an array of image names, center rows, center columns, labels, previous image name and image object and crops the images
-def crop_images(image_name, image_path,center_row, center_col, label, index,prev_image_name, img):
+def crop_images(image_name, image_path,center_row, center_col, label, index):
+    global img
+    global prev_image_name
+
     # define the size of the cropped region (200px by 200px)
     size = 200
     # calculate the half of the size
@@ -23,13 +26,12 @@ def crop_images(image_name, image_path,center_row, center_col, label, index,prev
         img = cv2.imread(image_path)
         # update the previous image name
         prev_image_name = image_name
-        # get the height and width of the image
-        # width, height = img.size
-        height, width, _ = img.shape
-    # check if any of the coordinates are out of bounds and adjust them if needed
+        
 
-    print(f"center_row {center_row} center_col {center_col}")
-    print(f"width {width} height {height}")
+    # get the height and width of the image
+    # width, height = img.shape
+    height, width, _ = img.shape
+    # check if any of the coordinates are out of bounds and adjust them if needed
     if left < 0:
         left = 0
     if upper < 0:
@@ -47,8 +49,7 @@ def crop_images(image_name, image_path,center_row, center_col, label, index,prev
     cv2.imwrite(cropped_image_path, cropped_img)
 
     # return the previous image name and image object as outputs
-    return prev_image_name, img
-
+    return
 # root of the images 
 root_folder = "/Volumes/iop/BONieuwenhuis/Processed_Data/3D_classification_trial/Red Sea Global data/"
 
@@ -77,9 +78,7 @@ prev_image_name = None
 img = None
 
 # # apply the crop_images function to the numpy arrays using np.vectorize and pass the previous image name, image object and image path as additional arguments
-# vfunc = np.vectorize(crop_images)
-# prev_image_name, img = vfunc(image_names, image_paths, center_rows, center_cols, labels, indices, prev_image_name, img)
-
-vfunc = np.vectorize(crop_images, excluded={"prev_image_name","img"}, otypes=["str", object]) 
+vfunc = np.vectorize(crop_images) 
 # add signature='(),(),(),(),(),()->(),(),()' to specify the output signature as a tuple of three arrays 
-prev_image_name, img = vfunc(image_names, image_paths, center_rows, center_cols, labels, indices, prev_image_name,img)
+vfunc(image_names, image_paths, center_rows, center_cols, labels, indices)
+print("Done Cropping images check your output folder!")
