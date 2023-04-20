@@ -10,3 +10,5 @@ annotated_images/*
 .DS_Store
 
 __pycache__/
+
+vertical_images_names.xlsx
