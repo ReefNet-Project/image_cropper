@@ -8,6 +8,7 @@ from find_image import find_image_path
 def annotate_image(name, row, col, label, index,length):
     global points_and_labels
     global previous_name    
+    global vertical_images
     print(f"Annotating Image {name}")
     if name != previous_name:
         if previous_name is not None:
@@ -16,6 +17,8 @@ def annotate_image(name, row, col, label, index,length):
             image = cv2.imread(image_path)
             height, width, _ = image.shape
             if (height > width):
+                # save image name in case of a vertical image 
+                vertical_images.append(previous_name)
                 image = cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
             # Loop over the points and labels for the current image
             for point, label in points_and_labels:
@@ -43,6 +46,7 @@ def annotate_image(name, row, col, label, index,length):
         image = cv2.imread(image_path)
         height, width, _ = image.shape
         if (height > width):
+            vertical_images.append(previous_name)
             image = cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
 
         # Loop over the points and labels for the current image
@@ -59,6 +63,11 @@ def annotate_image(name, row, col, label, index,length):
         # Save the image into an output folder
         cv2.imwrite("annotated_images/" + previous_name, image)
 
+        image_names_df = pd.DataFrame()
+        image_names_df["Vertical Image Name"] = vertical_images
+        image_names_df.to_excel("vertical_images_names.xlsx", engine="openpyxl")
+
+
     previous_name = name
     return previous_name
 
@@ -69,7 +78,7 @@ root_folder = "/Volumes/iop/BONieuwenhuis/Processed_Data/3D_classification_trial
 image_root_folder = root_folder + "Photos_with_Annotation"
 
 # read the xlsx file into a DataFrame using openpyxl engine
-df = pd.read_excel(root_folder + "Manual Annotations_RSG_CoralNet_MatchedtoImages.xlsx", sheet_name="AnnotationImages", engine="openpyxl")
+df = pd.read_excel(root_folder + "Manual Annotations_RSG_CoralNet_MatchedtoImages.xlsx", sheet_name="AnnotationImages", engine="openpyxl", nrows=20)
 
 names = df["Name"].to_numpy()
 cols = df["Column"].to_numpy()
@@ -80,6 +89,7 @@ length = len(names)
 
 points_and_labels = []
 previous_name = None
+vertical_images = []
 
 vfunc = np.vectorize(annotate_image, excluded={"length"}) 
 vfunc(names, rows, cols, labels , indices, length)
